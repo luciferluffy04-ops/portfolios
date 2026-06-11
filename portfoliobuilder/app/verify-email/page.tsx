@@ -1,7 +1,12 @@
 export const dynamic = 'force-dynamic'
 
+import ClientLayout from '../client-layout'
 import VerifyEmailForm from '@/components/auth/VerifyEmailForm'
 
 export default function VerifyEmailPage() {
-  return <VerifyEmailForm />
+  return (
+    <ClientLayout>
+      <VerifyEmailForm />
+    </ClientLayout>
+  )
 }
