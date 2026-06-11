@@ -1,3 +1,7 @@
 export const dynamic = 'force-dynamic'
 
-export { default } from '@/components/auth/RegisterForm'
+import RegisterForm from '@/components/auth/RegisterForm'
+
+export default function RegisterPage() {
+  return <RegisterForm />
+}

@@ -1,3 +1,7 @@
 export const dynamic = 'force-dynamic'
 
-export { default } from '@/components/auth/VerifyEmailForm'
+import VerifyEmailForm from '@/components/auth/VerifyEmailForm'
+
+export default function VerifyEmailPage() {
+  return <VerifyEmailForm />
+}

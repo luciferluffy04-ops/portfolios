@@ -1,3 +1,7 @@
 export const dynamic = 'force-dynamic'
 
-export { default } from '@/components/auth/DashboardContent'
+import DashboardContent from '@/components/auth/DashboardContent'
+
+export default function DashboardPage() {
+  return <DashboardContent />
+}

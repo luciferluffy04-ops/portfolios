@@ -1,19 +1,17 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase'
 
 export default function HandleTokenPage() {
-  const router = useRouter()
   const supabase = createBrowserClient()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.push('/dashboard')
+        window.location.href = '/dashboard'
       } else {
-        router.push('/login')
+        window.location.href = '/login'
       }
     })
   }, [])
