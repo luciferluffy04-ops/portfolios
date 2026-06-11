@@ -1,10 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import {
-  ArrowLeft, Globe, Download, Copy, Check,
-  Palette, Type, ExternalLink
-} from 'lucide-react'
+import { ArrowLeft, Globe, Download, Copy, Check, Palette, Type, ExternalLink } from 'lucide-react'
 import { useBuilder } from './BuilderContext'
 import { ACCENT_COLORS, ROLES } from '@/lib/constants'
 import { generatePortfolioHTML } from '@/lib/generatePortfolio'
@@ -44,14 +41,12 @@ export function StepPreview() {
   async function handlePublish() {
     setPublishing(true)
     setPublishError('')
-
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (session?.access_token) {
         headers['Authorization'] = 'Bearer ' + session.access_token
       }
-
       const res = await fetch('/api/publish', {
         method: 'POST',
         headers,
@@ -63,14 +58,11 @@ export function StepPreview() {
           name: state.details.name || state.subdomain,
         }),
       })
-
       const data = await res.json()
-
       if (!res.ok) {
         setPublishError(data.error || 'Failed to publish. Try a different URL.')
         return
       }
-
       setPublished(true)
     } catch {
       setPublishError('Network error. Please try again.')
@@ -96,7 +88,7 @@ export function StepPreview() {
   }
 
   const url = (state.subdomain || 'your-name') + '.portfol.io'
-  const roleLabel = ROLES.find(r => r.id === state.role)?.label ?? 'Developer'
+  const roleLabel = ROLES.find(function(r) { return r.id === state.role })?.label ?? 'Developer'
 
   return (
     <div className="animate-fade-up">
@@ -106,6 +98,7 @@ export function StepPreview() {
       </p>
 
       <div className="grid lg:grid-cols-[1fr_260px] gap-5">
+
         <div className="rounded-xl border border-gray-200 overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 border-b border-gray-200">
             <div className="flex gap-1.5">
@@ -119,7 +112,6 @@ export function StepPreview() {
             </div>
             <ExternalLink size={13} className="text-gray-400 cursor-pointer hover:text-gray-600" />
           </div>
-
           <div className="relative bg-white" style={{ height: '480px' }}>
             {html ? (
               <iframe
@@ -137,18 +129,19 @@ export function StepPreview() {
         </div>
 
         <div className="flex flex-col gap-4">
+
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
-              <Globe size={14} className="text-brand-600" /> Publish
+              <Globe size={14} className="text-brand-600" />
+              <span>Publish</span>
             </p>
-
             {published ? (
               <div className="text-center py-3">
                 <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-2">
                   <Check size={18} className="text-teal-600" />
                 </div>
                 <p className="text-sm font-medium text-teal-700">Live!</p>
-
+                <a
                   href={'https://' + url}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -161,17 +154,19 @@ export function StepPreview() {
                   className="mt-3 flex items-center gap-1.5 mx-auto px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
                 >
                   {copied ? <Check size={11} className="text-teal-500" /> : <Copy size={11} />}
-                  {copied ? 'Copied!' : 'Copy link'}
+                  <span>{copied ? 'Copied!' : 'Copy link'}</span>
                 </button>
               </div>
             ) : (
-              <>
+              <div>
                 <p className="text-xs text-gray-400 mb-2">Your URL will be:</p>
                 <div className="flex items-center rounded-lg border border-gray-200 overflow-hidden mb-3">
                   <input
                     className="flex-1 px-2.5 py-2 text-xs text-gray-700 bg-white outline-none"
                     value={state.subdomain}
-                    onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                    onChange={function(e) {
+                      setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+                    }}
                     placeholder="your-name"
                   />
                   <span className="px-2.5 py-2 text-xs text-gray-400 bg-gray-50 border-l border-gray-200 whitespace-nowrap">
@@ -187,61 +182,68 @@ export function StepPreview() {
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-2"
                 >
                   <Globe size={14} />
-                  {publishing ? 'Publishing...' : 'Publish now'}
+                  <span>{publishing ? 'Publishing...' : 'Publish now'}</span>
                 </button>
                 <button
                   onClick={handleDownload}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
                 >
-                  <Download size={14} /> Download HTML
+                  <Download size={14} />
+                  <span>Download HTML</span>
                 </button>
-              </>
+              </div>
             )}
           </div>
 
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
-              <Palette size={14} className="text-brand-600" /> Customise
+              <Palette size={14} className="text-brand-600" />
+              <span>Customise</span>
             </p>
-
             <div className="flex flex-col gap-4">
               <div>
                 <p className="text-xs text-gray-400 mb-2">Accent colour</p>
                 <div className="flex items-center gap-2 flex-wrap">
-                  {ACCENT_COLORS.map(c => (
-                    <button
-                      key={c.value}
-                      title={c.label}
-                      onClick={() => setAccentColor(c.value)}
-                      className="w-6 h-6 rounded-full transition-all"
-                      style={{
-                        background: c.value,
-                        outline: state.accentColor === c.value ? '2px solid ' + c.value : 'none',
-                        outlineOffset: '2px',
-                      }}
-                    />
-                  ))}
+                  {ACCENT_COLORS.map(function(c) {
+                    return (
+                      <button
+                        key={c.value}
+                        title={c.label}
+                        onClick={function() { setAccentColor(c.value) }}
+                        className="w-6 h-6 rounded-full transition-all"
+                        style={{
+                          background: c.value,
+                          outline: state.accentColor === c.value ? '2px solid ' + c.value : 'none',
+                          outlineOffset: '2px',
+                        }}
+                      />
+                    )
+                  })}
                 </div>
               </div>
-
               <div>
                 <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
-                  <Type size={11} /> Font style
+                  <Type size={11} />
+                  <span>Font style</span>
                 </p>
                 <div className="grid grid-cols-3 gap-1.5">
-                  {(['sans', 'serif', 'mono'] as const).map(f => (
-                    <button
-                      key={f}
-                      onClick={() => setFontStyle(f)}
-                      className={'py-1.5 rounded-md text-xs font-medium border transition-colors ' + (
-                        state.fontStyle === f
-                          ? 'border-brand-400 bg-brand-50 text-brand-700'
-                          : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                      )}
-                    >
-                      {f === 'sans' ? 'Modern' : f === 'serif' ? 'Editorial' : 'Dev'}
-                    </button>
-                  ))}
+                  {(['sans', 'serif', 'mono'] as const).map(function(f) {
+                    const active = state.fontStyle === f
+                    return (
+                      <button
+                        key={f}
+                        onClick={function() { setFontStyle(f) }}
+                        className={
+                          'py-1.5 rounded-md text-xs font-medium border transition-colors ' +
+                          (active
+                            ? 'border-brand-400 bg-brand-50 text-brand-700'
+                            : 'border-gray-200 text-gray-500 hover:border-gray-300')
+                        }
+                      >
+                        {f === 'sans' ? 'Modern' : f === 'serif' ? 'Editorial' : 'Dev'}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -255,9 +257,9 @@ export function StepPreview() {
                 className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 {copied ? <Check size={12} className="text-teal-500" /> : <Copy size={12} />}
-                {copied ? 'Copied!' : 'Copy link'}
+                <span>{copied ? 'Copied!' : 'Copy link'}</span>
               </button>
-
+              <a
                 href={'https://linkedin.com/sharing/share-offsite/?url=https://' + url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -267,6 +269,7 @@ export function StepPreview() {
               </a>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -275,7 +278,8 @@ export function StepPreview() {
           onClick={goBack}
           className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
         >
-          <ArrowLeft size={14} /> Edit details
+          <ArrowLeft size={14} />
+          <span>Edit details</span>
         </button>
       </div>
     </div>
