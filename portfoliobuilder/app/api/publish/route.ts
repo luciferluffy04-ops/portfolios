@@ -14,20 +14,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid subdomain' }, { status: 400 })
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Get user from auth header
     const authHeader = req.headers.get('authorization')
     let userId: string | null = null
 
-    if (authHeader) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.replace('Bearer ', '')
       const { data: { user } } = await supabase.auth.getUser(token)
       userId = user?.id || null
     }
 
+    // Check slug availability
     const { data: existing } = await supabase
       .from('portfolios')
       .select('id, user_id')
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Save portfolio
     const { error } = await supabase
       .from('portfolios')
       .upsert({
@@ -54,9 +57,12 @@ export async function POST(req: NextRequest) {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'slug' })
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-    return NextResponse.json({ success: true, url: `/u/${slug}`, slug })
+    return NextResponse.json({ success: true, url: '/u/' + slug, slug })
   } catch (err: any) {
     console.error('Publish error:', err)
     return NextResponse.json({ error: err.message || 'Failed to publish' }, { status: 500 })

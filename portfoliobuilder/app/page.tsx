@@ -15,14 +15,13 @@ const ROLE_PREVIEWS = [
 const HOW_IT_WORKS = [
   { icon: Layers,  step: '01', title: 'Pick your role',       desc: 'Choose from 6 developer roles. Each unlocks templates designed specifically for your field.' },
   { icon: Upload,  step: '02', title: 'Add your details',     desc: 'Upload your resume and we extract everything automatically, or fill in the form yourself.' },
-  { icon: Eye,     step: '03', title: 'Preview & customise',  desc: 'See your portfolio live. Change accent colour, font, and layout until it feels like you.' },
-  { icon: Zap,     step: '04', title: 'Publish in one click', desc: 'Go live on yourname.portfol.io instantly. Or download the HTML and self-host anywhere.' },
+  { icon: Eye,     step: '03', title: 'Preview and customise', desc: 'See your portfolio live. Change accent colour, font, and layout until it feels like you.' },
+  { icon: Zap,     step: '04', title: 'Publish in one click', desc: 'Go live instantly. Or download the HTML and self-host anywhere.' },
 ]
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Nav */}
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -34,17 +33,17 @@ export default function HomePage() {
           <div className="hidden md:flex items-center gap-6 text-sm text-gray-500">
             <a href="#how" className="hover:text-gray-900 transition-colors">How it works</a>
             <a href="#roles" className="hover:text-gray-900 transition-colors">Roles</a>
+            <Link href="/login" className="hover:text-gray-900 transition-colors">Sign in</Link>
           </div>
           <Link
-            href="/builder"
+            href="/register"
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors"
           >
-            Get started <ArrowRight size={14} />
+            Get started free <ArrowRight size={14} />
           </Link>
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 pt-24 pb-20 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-sm font-medium mb-8">
           <Zap size={13} />
@@ -60,22 +59,21 @@ export default function HomePage() {
         </p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <Link
-            href="/builder"
+            href="/register"
             className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-brand-600 text-white font-medium hover:bg-brand-700 transition-colors text-[15px]"
           >
             Build mine free <ArrowRight size={16} />
           </Link>
-          <a
+
             href="#how"
             className="flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:border-gray-300 transition-colors text-[15px]"
           >
             See how it works
           </a>
         </div>
-        <p className="text-sm text-gray-400 mt-5">Free forever · No sign-up needed · Own your HTML</p>
+        <p className="text-sm text-gray-400 mt-5">Free forever · No credit card needed · Own your HTML</p>
       </section>
 
-      {/* Roles grid */}
       <section id="roles" className="max-w-6xl mx-auto px-6 pb-24">
         <p className="text-center text-xs font-semibold tracking-widest text-gray-400 uppercase mb-10">
           Templates for every dev role
@@ -86,7 +84,7 @@ export default function HomePage() {
             return (
               <Link
                 key={r.label}
-                href="/builder"
+                href="/register"
                 className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all text-center group"
               >
                 <div
@@ -102,7 +100,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it works */}
       <section id="how" className="bg-gray-50 border-y border-gray-100">
         <div className="max-w-6xl mx-auto px-6 py-24">
           <div className="text-center mb-16">
@@ -129,7 +126,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="max-w-6xl mx-auto px-6 py-28 text-center">
         <h2 className="font-display font-bold text-4xl md:text-5xl text-gray-900 mb-5">
           Ready to stand out?
@@ -138,14 +134,13 @@ export default function HomePage() {
           Takes 5 minutes. No design skills needed.
         </p>
         <Link
-          href="/builder"
+          href="/register"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-brand-600 text-white font-semibold text-lg hover:bg-brand-700 transition-colors"
         >
           Start building <ArrowRight size={18} />
         </Link>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-100 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between text-sm text-gray-400">
           <div className="flex items-center gap-2">

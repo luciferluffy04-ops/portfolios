@@ -4,35 +4,42 @@ import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
 
 export default function HandleTokenPage() {
-  const [status, setStatus] = useState('Signing you in...')
+  const [status, setStatus] = useState('Completing sign in...')
   const supabase = createBrowserClient()
 
   useEffect(() => {
     async function handleSession() {
-      setStatus('Checking session...')
-
-      // Supabase auto-processes hash tokens on page load
-      // We just need to wait and check
-      let attempts = 0
-      const maxAttempts = 10
-
-      while (attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 800))
-
-        const { data: { session } } = await supabase.auth.getSession()
-
+      // Listen for auth state change - Supabase fires this when it processes the hash
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (session) {
-          setStatus('Logged in! Redirecting...')
-          window.location.replace('/dashboard')
-          return
+          subscription.unsubscribe()
+          setStatus('Signed in! Taking you to your dashboard...')
+          setTimeout(() => {
+            window.location.replace('/dashboard')
+          }, 500)
         }
+      })
 
-        attempts++
-        setStatus('Verifying... (' + attempts + '/' + maxAttempts + ')')
+      // Also check immediately in case session already exists
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        subscription.unsubscribe()
+        setStatus('Signed in! Taking you to your dashboard...')
+        window.location.replace('/dashboard')
+        return
       }
 
-      // If still no session after all attempts
-      window.location.replace('/login?error=session_not_found')
+      // Timeout fallback after 15 seconds
+      setTimeout(() => {
+        subscription.unsubscribe()
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            window.location.replace('/dashboard')
+          } else {
+            window.location.replace('/login?error=session_timeout')
+          }
+        })
+      }, 15000)
     }
 
     handleSession()
@@ -44,7 +51,8 @@ export default function HandleTokenPage() {
       background: '#F9FAFB',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      fontFamily: 'system-ui, sans-serif'
     }}>
       <div style={{ textAlign: 'center', padding: '40px' }}>
         <div style={{

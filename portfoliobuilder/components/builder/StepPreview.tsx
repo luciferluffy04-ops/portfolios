@@ -8,15 +8,17 @@ import {
 import { useBuilder } from './BuilderContext'
 import { ACCENT_COLORS, ROLES } from '@/lib/constants'
 import { generatePortfolioHTML } from '@/lib/generatePortfolio'
+import { createBrowserClient } from '@/lib/supabase'
 
 export function StepPreview() {
   const { state, goBack, setSubdomain, setAccentColor, setFontStyle } = useBuilder()
   const [copied, setCopied] = useState(false)
   const [published, setPublished] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [publishError, setPublishError] = useState('')
   const [html, setHtml] = useState('')
+  const supabase = createBrowserClient()
 
-  // Auto-generate subdomain from name
   useEffect(() => {
     if (!state.subdomain && state.details.name) {
       const slug = state.details.name
@@ -27,7 +29,6 @@ export function StepPreview() {
     }
   }, [state.details.name, state.subdomain, setSubdomain])
 
-  // Regenerate HTML on state change
   useEffect(() => {
     if (!state.role || !state.templateId) return
     const generated = generatePortfolioHTML({
@@ -42,19 +43,37 @@ export function StepPreview() {
 
   async function handlePublish() {
     setPublishing(true)
+    setPublishError('')
+
     try {
-      await fetch('/api/publish', {
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (session?.access_token) {
+        headers['Authorization'] = 'Bearer ' + session.access_token
+      }
+
+      const res = await fetch('/api/publish', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           subdomain: state.subdomain,
           html,
+          role: state.role,
+          template: state.templateId,
+          name: state.details.name || state.subdomain,
         }),
       })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setPublishError(data.error || 'Failed to publish. Try a different URL.')
+        return
+      }
+
       setPublished(true)
     } catch {
-      // fallback to download
-      handleDownload()
+      setPublishError('Network error. Please try again.')
     } finally {
       setPublishing(false)
     }
@@ -65,31 +84,29 @@ export function StepPreview() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${state.subdomain || 'portfolio'}.html`
+    a.download = (state.subdomain || 'portfolio') + '.html'
     a.click()
     URL.revokeObjectURL(url)
   }
 
   async function handleCopyLink() {
-    await navigator.clipboard.writeText(`https://${state.subdomain}.portfol.io`)
+    await navigator.clipboard.writeText('https://' + state.subdomain + '.portfol.io')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const url = `${state.subdomain || 'your-name'}.portfol.io`
+  const url = (state.subdomain || 'your-name') + '.portfol.io'
   const roleLabel = ROLES.find(r => r.id === state.role)?.label ?? 'Developer'
 
   return (
     <div className="animate-fade-up">
-      <h2 className="text-lg font-semibold text-gray-900 mb-1">Preview & publish</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-1">Preview and publish</h2>
       <p className="text-sm text-gray-500 mb-5">
         Your {roleLabel} portfolio is ready. Customise, then publish.
       </p>
 
       <div className="grid lg:grid-cols-[1fr_260px] gap-5">
-        {/* Browser preview */}
         <div className="rounded-xl border border-gray-200 overflow-hidden">
-          {/* Browser chrome */}
           <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 border-b border-gray-200">
             <div className="flex gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
@@ -103,7 +120,6 @@ export function StepPreview() {
             <ExternalLink size={13} className="text-gray-400 cursor-pointer hover:text-gray-600" />
           </div>
 
-          {/* Iframe preview */}
           <div className="relative bg-white" style={{ height: '480px' }}>
             {html ? (
               <iframe
@@ -114,16 +130,13 @@ export function StepPreview() {
               />
             ) : (
               <div className="flex items-center justify-center h-full text-sm text-gray-400">
-                Building preview…
+                Building preview...
               </div>
             )}
           </div>
         </div>
 
-        {/* Right panel */}
         <div className="flex flex-col gap-4">
-
-          {/* Publish card */}
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
               <Globe size={14} className="text-brand-600" /> Publish
@@ -135,8 +148,8 @@ export function StepPreview() {
                   <Check size={18} className="text-teal-600" />
                 </div>
                 <p className="text-sm font-medium text-teal-700">Live!</p>
-                <a
-                  href={`https://${url}`}
+
+                  href={'https://' + url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-brand-500 hover:underline mt-0.5 block"
@@ -165,13 +178,16 @@ export function StepPreview() {
                     .portfol.io
                   </span>
                 </div>
+                {publishError && (
+                  <p className="text-xs text-red-500 mb-2">{publishError}</p>
+                )}
                 <button
                   onClick={handlePublish}
                   disabled={publishing || !state.subdomain}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-2"
                 >
                   <Globe size={14} />
-                  {publishing ? 'Publishing…' : 'Publish now'}
+                  {publishing ? 'Publishing...' : 'Publish now'}
                 </button>
                 <button
                   onClick={handleDownload}
@@ -183,7 +199,6 @@ export function StepPreview() {
             )}
           </div>
 
-          {/* Customise card */}
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
               <Palette size={14} className="text-brand-600" /> Customise
@@ -201,7 +216,7 @@ export function StepPreview() {
                       className="w-6 h-6 rounded-full transition-all"
                       style={{
                         background: c.value,
-                        outline: state.accentColor === c.value ? `2px solid ${c.value}` : 'none',
+                        outline: state.accentColor === c.value ? '2px solid ' + c.value : 'none',
                         outlineOffset: '2px',
                       }}
                     />
@@ -218,11 +233,11 @@ export function StepPreview() {
                     <button
                       key={f}
                       onClick={() => setFontStyle(f)}
-                      className={`py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                      className={'py-1.5 rounded-md text-xs font-medium border transition-colors ' + (
                         state.fontStyle === f
                           ? 'border-brand-400 bg-brand-50 text-brand-700'
                           : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                      }`}
+                      )}
                     >
                       {f === 'sans' ? 'Modern' : f === 'serif' ? 'Editorial' : 'Dev'}
                     </button>
@@ -232,7 +247,6 @@ export function StepPreview() {
             </div>
           </div>
 
-          {/* Share */}
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3">Share</p>
             <div className="flex gap-2">
@@ -243,8 +257,8 @@ export function StepPreview() {
                 {copied ? <Check size={12} className="text-teal-500" /> : <Copy size={12} />}
                 {copied ? 'Copied!' : 'Copy link'}
               </button>
-              <a
-                href={`https://linkedin.com/sharing/share-offsite/?url=https://${url}`}
+
+                href={'https://linkedin.com/sharing/share-offsite/?url=https://' + url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
