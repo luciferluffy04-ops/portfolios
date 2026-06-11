@@ -10,31 +10,23 @@ function LoginFormInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') || '/dashboard'
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
   const supabase = createBrowserClient()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setError(error.message)
       setLoading(false)
       return
     }
-
     router.push(next)
     router.refresh()
   }
@@ -56,7 +48,6 @@ function LoginFormInner() {
           {error}
         </div>
       )}
-
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
           Email
@@ -70,16 +61,12 @@ function LoginFormInner() {
           className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 bg-white placeholder-gray-300 focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-200 transition"
         />
       </div>
-
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
             Password
           </label>
-          <Link
-            href="/forgot-password"
-            className="text-xs text-brand-500 hover:text-brand-700"
-          >
+          <Link href="/forgot-password" className="text-xs text-brand-500 hover:text-brand-700">
             Forgot password?
           </Link>
         </div>
@@ -101,15 +88,13 @@ function LoginFormInner() {
           </button>
         </div>
       </div>
-
       <button
         type="submit"
         disabled={loading}
         className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-1"
       >
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? 'Signing in...' : 'Sign in'}
       </button>
-
       <div className="relative my-1">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-100" />
@@ -118,7 +103,6 @@ function LoginFormInner() {
           <span className="bg-white px-3 text-xs text-gray-400">or</span>
         </div>
       </div>
-
       <button
         type="button"
         onClick={handleGoogleLogin}
@@ -132,13 +116,9 @@ function LoginFormInner() {
         </svg>
         Continue with Google
       </button>
-
       <p className="text-center text-sm text-gray-500 mt-2">
         Don't have an account?{' '}
-        <Link
-          href="/register"
-          className="text-brand-600 font-medium hover:text-brand-700"
-        >
+        <Link href="/register" className="text-brand-600 font-medium hover:text-brand-700">
           Sign up free
         </Link>
       </p>
@@ -158,7 +138,6 @@ export default function LoginForm() {
             Portfol.io
           </span>
         </div>
-
         <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
           <h1 className="text-xl font-semibold text-gray-900 mb-1">
             Welcome back
@@ -170,7 +149,6 @@ export default function LoginForm() {
             <LoginFormInner />
           </Suspense>
         </div>
-
         <p className="text-center text-xs text-gray-400 mt-6">
           By continuing you agree to our{' '}
           <a href="#" className="underline">Terms</a> and{' '}

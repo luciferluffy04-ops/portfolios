@@ -45,7 +45,6 @@ export default function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Nav */}
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -69,7 +68,8 @@ export default function DashboardContent() {
               onClick={signOut}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100 transition-colors"
             >
-              <LogOut size={14} /> Sign out
+              <LogOut size={14} />
+              Sign out
             </button>
           </div>
         </div>
@@ -91,7 +91,8 @@ export default function DashboardContent() {
             href="/builder"
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors"
           >
-            <Plus size={15} /> New portfolio
+            <Plus size={15} />
+            New portfolio
           </Link>
         </div>
 
@@ -110,14 +111,14 @@ export default function DashboardContent() {
               No portfolios yet
             </h2>
             <p className="text-sm text-gray-400 mb-6 max-w-xs">
-              Create your first portfolio in minutes. Upload your resume and
-              we'll do the rest.
+              Create your first portfolio in minutes. Upload your resume and we will do the rest.
             </p>
             <Link
               href="/builder"
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors"
             >
-              <Plus size={15} /> Build my portfolio
+              <Plus size={15} />
+              Build my portfolio
             </Link>
           </div>
         ) : (
@@ -147,11 +148,13 @@ export default function DashboardContent() {
                         {p.role} · {p.template}
                       </p>
                     </div>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      p.published
-                        ? 'bg-teal-50 text-teal-600 border border-teal-100'
-                        : 'bg-gray-100 text-gray-400'
-                    }`}>
+                    <span
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        p.published
+                          ? 'bg-teal-50 text-teal-600 border border-teal-100'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}
+                    >
                       {p.published ? 'Live' : 'Draft'}
                     </span>
                   </div>
@@ -162,13 +165,15 @@ export default function DashboardContent() {
                       rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
                     >
-                      <Eye size={12} /> View
+                      <Eye size={12} />
+                      View
                     </a>
                     <Link
                       href={`/builder?edit=${p.id}`}
                       className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
                     >
-                      <Edit3 size={12} /> Edit
+                      <Edit3 size={12} />
+                      Edit
                     </Link>
                     <button
                       onClick={() => deletePortfolio(p.id)}

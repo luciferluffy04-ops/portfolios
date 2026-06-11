@@ -13,7 +13,6 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
-
   const supabase = createBrowserClient()
 
   const hasLength = password.length >= 8
@@ -78,8 +77,7 @@ export default function RegisterForm() {
             </p>
             <p className="text-sm font-medium text-gray-800 mb-5">{email}</p>
             <p className="text-xs text-gray-400 mb-5">
-              Click the link in the email to verify your account, then come
-              back to sign in.
+              Click the link in the email to verify your account then come back to sign in.
             </p>
             <Link
               href="/login"
@@ -104,7 +102,6 @@ export default function RegisterForm() {
             Portfol.io
           </span>
         </div>
-
         <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
           <h1 className="text-xl font-semibold text-gray-900 mb-1">
             Create your account
@@ -112,14 +109,12 @@ export default function RegisterForm() {
           <p className="text-sm text-gray-500 mb-6">
             Free forever. No credit card needed.
           </p>
-
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm mb-4">
               <AlertCircle size={15} className="flex-shrink-0" />
               {error}
             </div>
           )}
-
           <form onSubmit={handleRegister} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -134,7 +129,6 @@ export default function RegisterForm() {
                 className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 bg-white placeholder-gray-300 focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-200 transition"
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Email
@@ -148,7 +142,6 @@ export default function RegisterForm() {
                 className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 bg-white placeholder-gray-300 focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-200 transition"
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Password
@@ -170,7 +163,6 @@ export default function RegisterForm() {
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
-
               {password.length > 0 && (
                 <div className="flex flex-col gap-1.5 mt-1">
                   <div className="flex gap-1">
@@ -191,27 +183,25 @@ export default function RegisterForm() {
                   </div>
                   <div className="flex gap-3 text-xs text-gray-400">
                     <span className={hasLength ? 'text-teal-600' : ''}>
-                      ✓ 8+ chars
+                      8+ chars
                     </span>
                     <span className={hasUpper ? 'text-teal-600' : ''}>
-                      ✓ Uppercase
+                      Uppercase
                     </span>
                     <span className={hasNumber ? 'text-teal-600' : ''}>
-                      ✓ Number
+                      Number
                     </span>
                   </div>
                 </div>
               )}
             </div>
-
             <button
               type="submit"
               disabled={loading}
               className="w-full py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-1"
             >
-              {loading ? 'Creating account…' : 'Create account'}
+              {loading ? 'Creating account...' : 'Create account'}
             </button>
-
             <div className="relative my-1">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-100" />
@@ -220,7 +210,6 @@ export default function RegisterForm() {
                 <span className="bg-white px-3 text-xs text-gray-400">or</span>
               </div>
             </div>
-
             <button
               type="button"
               onClick={handleGoogleSignup}
@@ -235,13 +224,9 @@ export default function RegisterForm() {
               Continue with Google
             </button>
           </form>
-
           <p className="text-center text-sm text-gray-500 mt-4">
             Already have an account?{' '}
-            <Link
-              href="/login"
-              className="text-brand-600 font-medium hover:text-brand-700"
-            >
+            <Link href="/login" className="text-brand-600 font-medium hover:text-brand-700">
               Sign in
             </Link>
           </p>
