@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const error = searchParams.get('error')
 
   if (error) {
-    return NextResponse.redirect(`${origin}/login?error=${error}`)
+    return NextResponse.redirect(origin + '/login?error=' + error)
   }
 
   if (code) {
@@ -17,14 +17,14 @@ export async function GET(req: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
-      const { error } = await supabase.auth.exchangeCodeForSession(code)
-      if (!error) {
-        return NextResponse.redirect(`${origin}${next}`)
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+      if (!exchangeError) {
+        return NextResponse.redirect(origin + next)
       }
     } catch (err) {
       console.error('Callback error:', err)
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/handle-token`)
+  return NextResponse.redirect(origin + '/auth/handle-token')
 }
