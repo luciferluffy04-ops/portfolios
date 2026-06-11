@@ -1,14 +1,13 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
+const SUPABASE_URL = 'https://josrhzyubkdbxefppdwu.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvc3Joenl1YmtkYnhlZnBwZHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNDc2ODksImV4cCI6MjA5NjcyMzY4OX0.e-2ohTNUs29XZreWUvFWWPNfWlTcLR5C8YoHUvM-Hhc'
+
 let client: SupabaseClient | null = null
 
 export function createBrowserClient(): SupabaseClient {
   if (client) return client
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-
-  client = createClient(url, key)
+  client = createClient(SUPABASE_URL, SUPABASE_KEY)
   return client
 }
 
