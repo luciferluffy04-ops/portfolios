@@ -5,14 +5,8 @@ let client: SupabaseClient | null = null
 export function createBrowserClient(): SupabaseClient {
   if (client) return client
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
-  if (!url || !key) {
-    console.warn('Supabase env variables not set')
-    url = 'https://placeholder.supabase.co'
-    key = 'placeholder'
-  }
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
   client = createClient(url, key)
   return client
