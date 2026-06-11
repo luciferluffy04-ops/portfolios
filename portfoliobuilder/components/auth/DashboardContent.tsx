@@ -153,7 +153,7 @@ export default function DashboardContent() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-
+                    <a
                       href={'/u/' + p.slug}
                       target="_blank"
                       rel="noopener noreferrer"
