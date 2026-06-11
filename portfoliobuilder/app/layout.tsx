@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Sora } from 'next/font/google'
 import './globals.css'
+import { AuthProvider } from '@/components/auth/AuthContext'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -17,23 +18,16 @@ const sora = Sora({
 
 export const metadata: Metadata = {
   title: 'Portfol.io — Build your developer portfolio in minutes',
-  description:
-    'Upload your resume or fill in your details. Get a polished, publishable portfolio website tailored to your role.',
-  openGraph: {
-    title: 'Portfol.io',
-    description: 'Build your developer portfolio in minutes.',
-  },
+  description: 'Upload your resume or fill in your details. Get a polished, publishable portfolio website tailored to your role.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>
       <body className="font-sans antialiased bg-white text-gray-900">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
