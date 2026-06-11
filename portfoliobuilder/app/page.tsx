@@ -65,7 +65,7 @@ export default function HomePage() {
           >
             Build mine free <ArrowRight size={16} />
           </Link>
-
+          
             href="#how"
             className="flex items-center gap-2 px-6 py-3.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:border-gray-300 transition-colors text-sm"
           >
