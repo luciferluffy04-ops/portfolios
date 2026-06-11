@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createBrowserClient()
+  const supabase = typeof window !== 'undefined' ? createBrowserClient() : null as any
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
