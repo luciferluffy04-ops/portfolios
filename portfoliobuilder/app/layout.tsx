@@ -16,16 +16,17 @@ const sora = Sora({
 })
 
 export const metadata: Metadata = {
-  title: 'Portfol.io — Build your developer portfolio in minutes',
-  description: 'Upload your resume or fill in your details.',
+  title: 'Portfol.io',
+  description: 'Build your developer portfolio in minutes.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const className = inter.variable + ' ' + sora.variable
   return (
-    <html lang={`en`} className={`${inter.variable} ${sora.variable}`}>
+    <html lang="en" className={className}>
       <body className="font-sans antialiased bg-white text-gray-900">
         {children}
+      </body>
+    </html>
+  )
+}
