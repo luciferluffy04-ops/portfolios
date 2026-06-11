@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Layers, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Layers, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
 import { createBrowserClient } from '@/lib/supabase'
 
 export default function LoginForm() {
@@ -11,7 +11,18 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [checking, setChecking] = useState(true)
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null)
   const supabase = createBrowserClient()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setLoggedInUser(session.user.email || 'User')
+      }
+      setChecking(false)
+    })
+  }, [])
 
   function getNext() {
     if (typeof window === 'undefined') return '/dashboard'
@@ -53,9 +64,19 @@ export default function LoginForm() {
     })
   }
 
+  if (checking) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '32px', height: '32px', border: '2px solid #E5E7EB', borderTopColor: '#534AB7', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
+
         <div className="flex items-center justify-center gap-2 mb-8">
           <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
             <Layers size={16} className="text-white" />
@@ -65,13 +86,27 @@ export default function LoginForm() {
           </span>
         </div>
 
+        {loggedInUser && (
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-teal-50 border border-teal-100 mb-4">
+            <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+              <CheckCircle size={16} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-teal-800">Already signed in</p>
+              <p className="text-xs text-teal-600">{loggedInUser}</p>
+            </div>
+            <button
+              onClick={() => window.location.href = '/dashboard'}
+              className="text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-100 px-3 py-1.5 rounded-lg"
+            >
+              Go to dashboard
+            </button>
+          </div>
+        )}
+
         <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1">
-            Welcome back
-          </h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Sign in to manage your portfolio
-          </p>
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">Welcome back</h1>
+          <p className="text-sm text-gray-500 mb-6">Sign in to manage your portfolio</p>
 
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm mb-4">
@@ -100,10 +135,7 @@ export default function LoginForm() {
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Password
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-brand-500 hover:text-brand-700"
-                >
+                <Link href="/forgot-password" className="text-xs text-brand-500 hover:text-brand-700">
                   Forgot password?
                 </Link>
               </div>
@@ -160,10 +192,7 @@ export default function LoginForm() {
 
           <p className="text-center text-sm text-gray-500 mt-4">
             Don't have an account?{' '}
-            <Link
-              href="/register"
-              className="text-brand-600 font-medium hover:text-brand-700"
-            >
+            <Link href="/register" className="text-brand-600 font-medium hover:text-brand-700">
               Sign up free
             </Link>
           </p>

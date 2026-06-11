@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url)
@@ -12,7 +13,6 @@ export async function GET(req: NextRequest) {
 
   if (code) {
     try {
-      const { createClient } = await import('@supabase/supabase-js')
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
       if (!exchangeError) {
         return NextResponse.redirect(origin + next)
       }
+      console.error('Exchange error:', exchangeError)
     } catch (err) {
       console.error('Callback error:', err)
     }
