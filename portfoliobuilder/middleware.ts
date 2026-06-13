@@ -20,22 +20,20 @@ export async function middleware(req: NextRequest) {
     pathname === r || pathname.startsWith(r + '/')
   )
 
-  if (isPublic) {
-    return NextResponse.next()
-  }
+  if (isPublic) return NextResponse.next()
 
   const isProtected = PROTECTED.some(r =>
     pathname === r || pathname.startsWith(r + '/')
   )
 
-  if (!isProtected) {
-    return NextResponse.next()
-  }
+  if (!isProtected) return NextResponse.next()
 
-  // Supabase v2 stores session in cookies using the project ref
+  // Check for any Supabase auth cookie — both the legacy single-token
+  // cookie and the newer chunked access_token cookie count as a valid session.
   const allCookies = req.cookies.getAll()
   const hasSession = allCookies.some(c =>
-    c.name.includes('sb-') && c.name.includes('-auth-token')
+    (c.name.includes('sb-') && c.name.includes('-auth-token')) ||
+    (c.name.includes('sb-') && c.name.includes('-access-token'))
   )
 
   if (!hasSession) {

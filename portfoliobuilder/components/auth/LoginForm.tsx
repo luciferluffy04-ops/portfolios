@@ -47,7 +47,12 @@ export default function LoginForm() {
     }
 
     if (data.session) {
-      window.location.href = getNext()
+      // Wait for the auth state to propagate and cookies to be written
+      // before navigating, otherwise middleware rejects the request
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      // Use replace so the back button doesn't return to login
+      window.location.replace(getNext())
     } else {
       setError('Login failed. Please try again.')
       setLoading(false)
@@ -66,8 +71,14 @@ export default function LoginForm() {
 
   if (checking) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '32px', height: '32px', border: '2px solid #E5E7EB', borderTopColor: '#534AB7', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div style={{
+          width: '32px', height: '32px',
+          border: '2px solid #E5E7EB',
+          borderTopColor: '#534AB7',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -96,7 +107,7 @@ export default function LoginForm() {
               <p className="text-xs text-teal-600">{loggedInUser}</p>
             </div>
             <button
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => window.location.replace('/dashboard')}
               className="text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-100 px-3 py-1.5 rounded-lg"
             >
               Go to dashboard
