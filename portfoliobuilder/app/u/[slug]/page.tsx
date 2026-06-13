@@ -1,8 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const portfolio = await getPortfolio(params.slug)
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  'https://josrhzyubkdbxefppdwu.supabase.co'
+
+const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvc3Joenl1YmtkYnhlZnBwZHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNDc2ODksImV4cCI6MjA5NjcyMzY4OX0.e-2ohTNUs29XZreWUvFWWPNfWlTcLR5C8YoHUvM-Hhc'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const portfolio = await getPortfolio(slug)
   if (!portfolio) return { title: 'Portfolio not found' }
   return {
     title: `${portfolio.name} — Portfolio`,
@@ -11,10 +20,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 async function getPortfolio(slug: string) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   const { data } = await supabase
     .from('portfolios')
     .select('*')
@@ -27,9 +33,10 @@ async function getPortfolio(slug: string) {
 export default async function PublicPortfolioPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const portfolio = await getPortfolio(params.slug)
+  const { slug } = await params
+  const portfolio = await getPortfolio(slug)
   if (!portfolio) notFound()
 
   return (
