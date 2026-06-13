@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Layers, Plus, Trash2, Edit3, LogOut, Eye } from 'lucide-react'
+import { Layers, Plus, Trash2, Edit3, LogOut, Eye, Crown, Zap } from 'lucide-react'
 import { createBrowserClient, Portfolio } from '@/lib/supabase'
 import { useAuth } from '@/components/auth/AuthContext'
 
@@ -43,6 +43,20 @@ export default function DashboardContent() {
     user?.email?.[0].toUpperCase() ||
     'U'
 
+  // Determine user's highest plan across portfolios
+  const userPlan: 'free' | 'pro' | 'premium' =
+    portfolios.some(p => p.plan === 'premium')
+      ? 'premium'
+      : portfolios.some(p => p.plan === 'pro')
+      ? 'pro'
+      : 'free'
+
+  const planColor = {
+    free: { text: '#6b7280', bg: '#f3f4f6' },
+    pro: { text: '#185FA5', bg: '#E6F1FB' },
+    premium: { text: '#854F0B', bg: '#FAEEDA' },
+  }[userPlan]
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -62,6 +76,12 @@ export default function DashboardContent() {
               </div>
               <span className="text-sm text-gray-600 hidden sm:block">
                 {user?.user_metadata?.full_name || user?.email}
+              </span>
+              <span
+                className="text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline"
+                style={{ color: planColor.text, background: planColor.bg }}
+              >
+                {userPlan.charAt(0).toUpperCase() + userPlan.slice(1)}
               </span>
             </div>
             <button
@@ -85,14 +105,44 @@ export default function DashboardContent() {
                 : portfolios.length + ' portfolio' + (portfolios.length > 1 ? 's' : '')}
             </p>
           </div>
-          <Link
-            href="/builder"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors"
-          >
-            <Plus size={15} />
-            <span>New portfolio</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            {userPlan === 'free' && (
+              <Link
+                href="/pricing"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg border border-amber-200 text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors font-medium"
+              >
+                <Crown size={12} />
+                Upgrade
+              </Link>
+            )}
+            <Link
+              href="/builder"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors"
+            >
+              <Plus size={15} />
+              <span>New portfolio</span>
+            </Link>
+          </div>
         </div>
+
+        {/* Upgrade nudge for free users with 1 portfolio */}
+        {!loading && portfolios.length >= 1 && userPlan === 'free' && (
+          <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-brand-50 to-blue-50 border border-brand-100">
+            <div className="w-9 h-9 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0">
+              <Zap size={16} className="text-brand-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-900">Want more portfolios or analytics?</p>
+              <p className="text-xs text-gray-500">Upgrade to Pro for 5 portfolios, font picker, and recruiter view tracking.</p>
+            </div>
+            <Link
+              href="/pricing"
+              className="flex-shrink-0 px-4 py-2 rounded-lg bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 transition-colors"
+            >
+              See plans
+            </Link>
+          </div>
+        )}
 
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -145,7 +195,7 @@ export default function DashboardContent() {
                         {p.name || 'Untitled'}
                       </h3>
                       <p className="text-xs text-gray-400 mt-0.5 capitalize">
-                        {p.role} - {p.template}
+                        {p.role} · {p.template}
                       </p>
                     </div>
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 border border-teal-100">

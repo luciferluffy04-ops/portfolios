@@ -12,6 +12,9 @@ import {
   Zap,
   Upload,
   Eye,
+  Check,
+  Star,
+  Crown,
 } from 'lucide-react'
 
 type RoleItem = {
@@ -64,6 +67,39 @@ const STEPS: StepItem[] = [
   },
 ]
 
+const PLANS = [
+  {
+    name: 'Free',
+    price: '$0',
+    icon: Star,
+    color: '#6b7280',
+    features: ['1 portfolio', '2 templates', 'Resume auto-fill', 'Download HTML', 'Publish to portfol.io'],
+    cta: 'Get started',
+    href: '/register',
+    highlight: false,
+  },
+  {
+    name: 'Pro',
+    price: '$9/mo',
+    icon: Zap,
+    color: '#185FA5',
+    features: ['5 portfolios', 'All 4 templates', 'Font style picker', 'Custom subdomain', 'Portfolio analytics', 'Remove badge'],
+    cta: 'Start free trial',
+    href: '/register?plan=pro',
+    highlight: true,
+  },
+  {
+    name: 'Premium',
+    price: '$19/mo',
+    icon: Crown,
+    color: '#854F0B',
+    features: ['Unlimited portfolios', 'All Pro features', 'Recruiter view tracking', 'Priority support', 'Early feature access'],
+    cta: 'Go Premium',
+    href: '/register?plan=premium',
+    highlight: false,
+  },
+]
+
 function RoleCard({ role }: { role: RoleItem }) {
   const Icon = role.icon
   return (
@@ -112,6 +148,7 @@ export default function HomePageContent() {
           <div className="hidden md:flex items-center gap-6 text-sm text-gray-500">
             <a href="#how" className="hover:text-gray-900 transition-colors">How it works</a>
             <a href="#roles" className="hover:text-gray-900 transition-colors">Roles</a>
+            <a href="#pricing" className="hover:text-gray-900 transition-colors">Pricing</a>
             <Link href="/login" className="hover:text-gray-900 transition-colors">Sign in</Link>
           </div>
           <Link
@@ -152,7 +189,7 @@ export default function HomePageContent() {
             <span>See how it works</span>
           </a>
         </div>
-        <p className="text-sm text-gray-400 mt-5">Free - No credit card needed - Own your HTML</p>
+        <p className="text-sm text-gray-400 mt-5">Free · No credit card needed · Own your HTML</p>
       </section>
 
       <section id="roles" className="max-w-6xl mx-auto px-6 pb-24">
@@ -180,6 +217,80 @@ export default function HomePageContent() {
         </div>
       </section>
 
+      {/* Pricing section */}
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
+        <div className="text-center mb-14">
+          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-4">Pricing</p>
+          <h2 className="font-display font-bold text-4xl text-gray-900 mb-3">
+            Start free, scale when ready
+          </h2>
+          <p className="text-gray-500 max-w-md mx-auto">
+            All plans include a live portfolio. Upgrade for analytics, multiple portfolios, and recruiter features.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5 mb-8">
+          {PLANS.map(plan => {
+            const Icon = plan.icon
+            return (
+              <div
+                key={plan.name}
+                className="relative rounded-2xl border p-6 flex flex-col gap-4"
+                style={{
+                  borderColor: plan.highlight ? plan.color + '55' : '#e5e7eb',
+                  boxShadow: plan.highlight ? '0 4px 24px ' + plan.color + '18' : undefined,
+                }}
+              >
+                {plan.highlight && (
+                  <div
+                    className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-semibold px-3 py-1 rounded-full text-white"
+                    style={{ background: plan.color }}
+                  >
+                    Most popular
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: plan.color + '15' }}
+                  >
+                    <Icon size={15} style={{ color: plan.color }} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">{plan.name}</p>
+                    <p className="text-xs font-bold" style={{ color: plan.color }}>{plan.price}</p>
+                  </div>
+                </div>
+                <ul className="flex flex-col gap-1.5">
+                  {plan.features.map(f => (
+                    <li key={f} className="flex items-center gap-2 text-xs text-gray-600">
+                      <Check size={12} style={{ color: plan.color }} className="flex-shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={plan.href}
+                  className="mt-auto block text-center py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                  style={
+                    plan.highlight
+                      ? { background: plan.color, color: '#fff' }
+                      : { background: '#f3f4f6', color: '#374151' }
+                  }
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+            )
+          })}
+        </div>
+        <p className="text-center text-sm text-gray-400">
+          Need the full comparison?{' '}
+          <Link href="/pricing" className="text-brand-600 hover:text-brand-700 font-medium">
+            See all features →
+          </Link>
+        </p>
+      </section>
+
       <section className="max-w-6xl mx-auto px-6 py-28 text-center">
         <h2 className="font-display font-bold text-4xl md:text-5xl text-gray-900 mb-5">
           Ready to stand out?
@@ -202,7 +313,11 @@ export default function HomePageContent() {
             <Layers size={14} className="text-brand-600" />
             <span className="font-medium text-gray-600">Portfol.io</span>
           </div>
-          <p>Build your portfolio, own your code.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/pricing" className="hover:text-gray-600 transition-colors">Pricing</Link>
+            <Link href="/login" className="hover:text-gray-600 transition-colors">Sign in</Link>
+            <p>Build your portfolio, own your code.</p>
+          </div>
         </div>
       </footer>
     </div>

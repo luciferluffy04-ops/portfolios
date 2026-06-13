@@ -3,7 +3,7 @@
 import {
   createContext, useContext, useState, useCallback, ReactNode
 } from 'react'
-import { BuilderState, UserDetails, Role, TemplateId } from '@/lib/types'
+import { BuilderState, UserDetails, Role, TemplateId, Plan } from '@/lib/types'
 import { DEFAULT_DETAILS } from '@/lib/constants'
 
 const initialState: BuilderState = {
@@ -14,6 +14,7 @@ const initialState: BuilderState = {
   subdomain: '',
   accentColor: '#534AB7',
   fontStyle: 'sans',
+  plan: 'free',
 }
 
 interface BuilderContextValue {
@@ -25,6 +26,7 @@ interface BuilderContextValue {
   setSubdomain: (s: string) => void
   setAccentColor: (c: string) => void
   setFontStyle: (f: 'sans' | 'serif' | 'mono') => void
+  setPlan: (p: Plan) => void
   goNext: () => void
   goBack: () => void
 }
@@ -62,6 +64,10 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
     setState(s => ({ ...s, fontStyle }))
   }, [])
 
+  const setPlan = useCallback((plan: Plan) => {
+    setState(s => ({ ...s, plan }))
+  }, [])
+
   const goNext = useCallback(() => {
     setState(s => ({ ...s, step: Math.min(s.step + 1, 4) }))
   }, [])
@@ -74,7 +80,7 @@ export function BuilderProvider({ children }: { children: ReactNode }) {
     <BuilderContext.Provider value={{
       state,
       setStep, setRole, setTemplateId, setDetails,
-      setSubdomain, setAccentColor, setFontStyle,
+      setSubdomain, setAccentColor, setFontStyle, setPlan,
       goNext, goBack,
     }}>
       {children}

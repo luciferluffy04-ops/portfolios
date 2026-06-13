@@ -6,9 +6,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['pdf-parse', 'mammoth'],
-  },
+  // Next.js 15 renamed this from experimental.serverComponentsExternalPackages
+  serverExternalPackages: ['pdf-parse', 'mammoth'],
 }
 
 module.exports = nextConfig

@@ -1,120 +1,114 @@
-# Portfol.io — Developer Portfolio Builder
+# Portfol.io — Interactive Portfolio Builder
 
-Build a polished portfolio website in minutes. Upload your resume, pick a template for your role, and publish.
+A Next.js 15 + Supabase platform that lets developers build, customise, and publish live portfolio websites in minutes.
 
-## What's included
+## Features
 
+- **Role-specific templates** — Frontend, Backend, Data Engineer, Data Scientist, Full Stack, DevOps
 - **4 portfolio templates** — Minimal, Developer Dark, Bold Visual, Timeline
-- **6 developer roles** — Frontend, Backend, Data Engineer, Data Scientist, Full Stack, DevOps
-- **Resume parsing** — PDF/DOCX upload, AI extraction with Claude (or local fallback)
-- **Live preview** — iframe preview updates as you type
-- **Publish** — one-click publish to subdomain or download HTML
+- **AI resume parsing** — Upload a PDF/DOCX and your details are auto-filled
+- **Free / Pro / Premium plans** — Built-in plan gating with upgrade flows
+- **Live publishing** — Portfolios go live at `your-name.portfol.io/u/slug`
+- **Download HTML** — Export and self-host anywhere
+- **Auth** — Email + password, Google OAuth, email verification, password reset
 
-## Project structure
-
-```
-portfoliobuilder/
-├── app/
-│   ├── page.tsx                  # Landing page
-│   ├── builder/page.tsx          # Builder (4-step flow)
-│   └── api/
-│       ├── parse-resume/route.ts # Resume upload + AI parsing
-│       └── publish/route.ts      # Portfolio publishing
-├── components/
-│   └── builder/
-│       ├── BuilderContext.tsx    # Global state (React Context)
-│       ├── BuilderShell.tsx      # Layout + step routing
-│       ├── Stepper.tsx           # Progress indicator
-│       ├── StepRole.tsx          # Step 1: pick role
-│       ├── StepTemplate.tsx      # Step 2: pick template
-│       ├── StepDetails.tsx       # Step 3: fill in details
-│       ├── StepPreview.tsx       # Step 4: preview + publish
-│       ├── ResumeUpload.tsx      # Drag-and-drop upload
-│       └── TemplateThumb.tsx     # Template preview cards
-└── lib/
-    ├── types.ts                  # TypeScript types
-    ├── constants.ts              # Roles, templates, colors
-    ├── resumeParser.ts           # Local resume text extraction
-    └── generatePortfolio.ts      # HTML generator for all 4 templates
-```
-
-## Getting started
-
-### 1. Install
+## Quick start
 
 ```bash
-cd portfoliobuilder
+# 1. Install dependencies
 npm install
-```
 
-### 2. Environment variables
+# 2. Set up environment (already has default Supabase keys)
+cp .env.local .env.local   # it's already named correctly
 
-```bash
-cp .env.example .env.local
-```
-
-Add your `ANTHROPIC_API_KEY` for AI-powered resume parsing. Without it, the local regex parser is used instead.
-
-### 3. Run
-
-```bash
+# 3. Run in development
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon/public key |
+| `ANTHROPIC_API_KEY` | No | Enables AI resume parsing (falls back to local parser if absent) |
+| `PUBLISH_DOMAIN` | No | Domain for published portfolios (default: `portfol.io`) |
+
+## Supabase table schema
+
+Run this SQL in your Supabase SQL editor:
+
+```sql
+create table if not exists portfolios (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid references auth.users(id) on delete cascade,
+  slug        text unique not null,
+  html        text not null,
+  role        text not null default 'frontend',
+  template    text not null default 'minimal',
+  name        text not null default '',
+  published   boolean not null default true,
+  plan        text not null default 'free',
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+-- Row Level Security
+alter table portfolios enable row level security;
+
+create policy "Users can read own portfolios"
+  on portfolios for select
+  using (auth.uid() = user_id);
+
+create policy "Users can insert own portfolios"
+  on portfolios for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update own portfolios"
+  on portfolios for update
+  using (auth.uid() = user_id);
+
+create policy "Users can delete own portfolios"
+  on portfolios for delete
+  using (auth.uid() = user_id);
+
+-- Public portfolios are readable by everyone
+create policy "Public portfolios are readable"
+  on portfolios for select
+  using (published = true);
+```
+
+## Route overview
+
+| Route | Description |
+|---|---|
+| `/` | Landing page with pricing preview |
+| `/pricing` | Full pricing / feature comparison |
+| `/register` | Sign up (email or Google) |
+| `/login` | Sign in |
+| `/forgot-password` | Password reset request |
+| `/auth/reset-password` | Set new password (from email link) |
+| `/dashboard` | User's portfolio list |
+| `/builder` | 4-step portfolio builder |
+| `/u/[slug]` | Public portfolio page |
+
+## Plans
+
+| | Free | Pro ($9/mo) | Premium ($19/mo) |
+|---|---|---|---|
+| Portfolios | 1 | 5 | Unlimited |
+| Templates | 2 | All 4 | All 4 + upcoming |
+| Analytics | ✗ | ✓ | ✓ |
+| Custom subdomain | ✗ | ✓ | ✓ |
+| Recruiter tracking | ✗ | ✗ | ✓ |
+
 ## Deployment (Vercel)
 
-```bash
-npm install -g vercel
-vercel --prod
-```
+1. Push to GitHub
+2. Import in Vercel
+3. Add environment variables
+4. Deploy
 
-Add environment variables in the Vercel dashboard.
-
-### Subdomain routing for published portfolios
-
-In `vercel.json`:
-
-```json
-{
-  "rewrites": [
-    { "source": "/sites/:path*", "destination": "/sites/:path*/index.html" }
-  ]
-}
-```
-
-For real subdomain support (`john.portfol.io`), configure a wildcard DNS record and Vercel middleware to route by subdomain.
-
-## Extending
-
-### Add a new role
-
-In `lib/constants.ts`, add to the `ROLES` array:
-
-```ts
-{
-  id: 'mobile',
-  label: 'Mobile developer',
-  description: 'iOS, Android, React Native',
-  icon: 'Smartphone',
-  defaultSkills: ['Swift', 'Kotlin', 'React Native', 'Flutter'],
-  accent: '#7C3AED',
-}
-```
-
-### Add a new template
-
-1. Add to `TEMPLATES` in `lib/constants.ts`
-2. Add a thumbnail in `components/builder/TemplateThumb.tsx`
-3. Add the generator function in `lib/generatePortfolio.ts`
-
-### Add a database
-
-Replace the file-write in `api/publish/route.ts` with a Supabase insert:
-
-```ts
-import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!)
-await supabase.from('portfolios').upsert({ subdomain, html, updated_at: new Date() })
-```
+The `vercel.json` in the repo already sets the correct build config.

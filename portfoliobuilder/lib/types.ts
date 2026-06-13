@@ -12,6 +12,8 @@ export type TemplateId =
   | 'bold-visual'
   | 'timeline'
 
+export type Plan = 'free' | 'pro' | 'premium'
+
 export interface Project {
   name: string
   description: string
@@ -49,4 +51,5 @@ export interface BuilderState {
   subdomain: string
   accentColor: string
   fontStyle: 'sans' | 'serif' | 'mono'
+  plan: Plan
 }

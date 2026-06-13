@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Globe, Download, Copy, Check, Palette, Type, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Globe, Download, Copy, Check, Palette, Type, ExternalLink, Crown } from 'lucide-react'
+import Link from 'next/link'
 import { useBuilder } from './BuilderContext'
 import { ACCENT_COLORS, ROLES } from '@/lib/constants'
 import { generatePortfolioHTML } from '@/lib/generatePortfolio'
@@ -13,6 +14,7 @@ export function StepPreview() {
   const [published, setPublished] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [publishError, setPublishError] = useState('')
+  const [upgradeRequired, setUpgradeRequired] = useState(false)
   const [html, setHtml] = useState('')
   const supabase = createBrowserClient()
 
@@ -41,6 +43,7 @@ export function StepPreview() {
   async function handlePublish() {
     setPublishing(true)
     setPublishError('')
+    setUpgradeRequired(false)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -56,10 +59,14 @@ export function StepPreview() {
           role: state.role,
           template: state.templateId,
           name: state.details.name || state.subdomain,
+          plan: state.plan,
         }),
       })
       const data = await res.json()
       if (!res.ok) {
+        if (data.upgradeRequired) {
+          setUpgradeRequired(true)
+        }
         setPublishError(data.error || 'Failed to publish. Try a different URL.')
         return
       }
@@ -90,9 +97,24 @@ export function StepPreview() {
   const url = (state.subdomain || 'your-name') + '.portfol.io'
   const roleLabel = ROLES.find(function(r) { return r.id === state.role })?.label ?? 'Developer'
 
+  const planBadge: Record<string, { label: string; color: string; bg: string }> = {
+    free: { label: 'Free', color: '#6b7280', bg: '#f3f4f6' },
+    pro: { label: 'Pro', color: '#185FA5', bg: '#E6F1FB' },
+    premium: { label: 'Premium', color: '#854F0B', bg: '#FAEEDA' },
+  }
+  const badge = planBadge[state.plan] || planBadge.free
+
   return (
     <div className="animate-fade-up">
-      <h2 className="text-lg font-semibold text-gray-900 mb-1">Preview and publish</h2>
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-lg font-semibold text-gray-900">Preview and publish</h2>
+        <span
+          className="text-xs font-semibold px-2.5 py-1 rounded-full"
+          style={{ color: badge.color, background: badge.bg }}
+        >
+          {badge.label} plan
+        </span>
+      </div>
       <p className="text-sm text-gray-500 mb-5">
         Your {roleLabel} portfolio is ready. Customise, then publish.
       </p>
@@ -130,6 +152,7 @@ export function StepPreview() {
 
         <div className="flex flex-col gap-4">
 
+          {/* Publish panel */}
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
               <Globe size={14} className="text-brand-600" />
@@ -142,7 +165,7 @@ export function StepPreview() {
                 </div>
                 <p className="text-sm font-medium text-teal-700">Live!</p>
                 <a
-                  href={'https://' + url}
+                  href={'/u/' + state.subdomain}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-brand-500 hover:underline mt-0.5 block"
@@ -173,8 +196,22 @@ export function StepPreview() {
                     .portfol.io
                   </span>
                 </div>
-                {publishError && (
+                {publishError && !upgradeRequired && (
                   <p className="text-xs text-red-500 mb-2">{publishError}</p>
+                )}
+                {upgradeRequired && (
+                  <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <p className="text-xs text-amber-800 font-medium mb-1 flex items-center gap-1">
+                      <Crown size={11} /> Free plan limit reached
+                    </p>
+                    <p className="text-xs text-amber-700 mb-2">{publishError}</p>
+                    <Link
+                      href="/pricing"
+                      className="text-xs font-semibold text-amber-800 underline"
+                    >
+                      Upgrade to Pro →
+                    </Link>
+                  </div>
                 )}
                 <button
                   onClick={handlePublish}
@@ -195,6 +232,7 @@ export function StepPreview() {
             )}
           </div>
 
+          {/* Customise panel */}
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-1.5">
               <Palette size={14} className="text-brand-600" />
@@ -249,6 +287,7 @@ export function StepPreview() {
             </div>
           </div>
 
+          {/* Share panel */}
           <div className="rounded-xl border border-gray-200 p-4 bg-white">
             <p className="text-sm font-semibold text-gray-800 mb-3">Share</p>
             <div className="flex gap-2">

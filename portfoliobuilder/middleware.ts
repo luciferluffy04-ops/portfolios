@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const PROTECTED = ['/builder', '/dashboard']
-const PUBLIC = ['/', '/login', '/register', '/verify-email', '/u', '/auth', '/api', '/forgot-password']
+const PUBLIC = [
+  '/',
+  '/login',
+  '/register',
+  '/verify-email',
+  '/forgot-password',
+  '/pricing',
+  '/u',
+  '/auth',
+  '/api',
+]
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -22,7 +32,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Supabase v2 stores session in cookies with this pattern
+  // Supabase v2 stores session in cookies using the project ref
   const allCookies = req.cookies.getAll()
   const hasSession = allCookies.some(c =>
     c.name.includes('sb-') && c.name.includes('-auth-token')
