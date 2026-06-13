@@ -3,7 +3,7 @@
 import {
   createContext, useContext, useEffect, useState, ReactNode
 } from 'react'
-import { User } from '@supabase/supabase-js'
+import { User, SupabaseClient } from '@supabase/supabase-js'
 import { createBrowserClient } from '@/lib/supabase'
 
 interface AuthContextValue {
@@ -18,27 +18,20 @@ const AuthContext = createContext<AuthContextValue>({
   signOut: async () => {},
 })
 
-// Create ONE supabase instance outside the component
-// so it never gets recreated on re-renders
-const supabase = typeof window !== 'undefined' ? createBrowserClient() : null
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  // Always create the client inside the component so it's never null
+  const [supabase] = useState<SupabaseClient>(() => createBrowserClient())
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false)
-      return
-    }
-
-    // Get current session
+    // Get current session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    // Listen for changes
+    // Stay in sync with auth state changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null)
@@ -47,12 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase])
 
   async function signOut() {
-    if (!supabase) return
     await supabase.auth.signOut()
-    window.location.href = '/login'
+    window.location.replace('/login')
   }
 
   return (
